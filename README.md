@@ -45,8 +45,7 @@ This script extracts only the reads that have the specified barcodes.
 
 The **input** is a list of FASTQ files and one or more barcodes that will be extracted in one single file.
 
-The **output** are FASTQ files that contain only the correct
-barcoded reads.
+The **output** are FASTQ files that contain only the correctly barcoded reads.
 
 ### Examples
 
