@@ -14,6 +14,6 @@ Examples of how to run the script:
     # Input directly from file
     ./barcode_counter.py a_fastq_file.fastq.gz > barcode_counts.tsv
 
-    # Input from decomporessed standard input
+    # Input from decompressed standard input
     pigz -p 8 -d a_fastq_file.fastq.gz | ./barcode_counter.py - > barcode_counts.tsv
 
