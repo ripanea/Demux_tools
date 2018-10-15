@@ -92,6 +92,15 @@ def configure_argparser(argparser_obj):
                                default=False,
                                help="Output is compressed. Much slower!")
 
+    # Allowed mismatches
+    argparser_obj.add_argument("-m", "--mismatch",
+                               type=int,
+                               action="store",
+                               dest="mismatches",
+                               required=False,
+                               default=1,
+                               help="Number of barcode mismatches allowed when extracting the reads.")
+
     # Output suffix
     argparser_obj.add_argument("-x", "--suffix",
                                action="store",
@@ -117,6 +126,22 @@ def configure_argparser(argparser_obj):
                                help="The set of barcodes that need to be extracted from each fastq file.")
 
 
+def extend_barcodes(barcodes, mismatches):
+
+    # Base condition for recursion
+    if mismatches <= 0:
+        return barcodes.copy()
+
+    # Create a new list of barcodes that allows one mismatch
+    new_barcodes = set()
+    for barcode in barcodes:
+        for replace_pos in range(len(barcode)):
+            for replace_nuc in ["A", "C", "G", "T", "N"]:
+                new_barcodes.add(barcode[:replace_pos] + replace_nuc + barcode[replace_pos+1:])
+
+    return extend_barcodes(list(new_barcodes), mismatches-1)
+
+
 def main():
 
     # Generate argument parser
@@ -134,8 +159,11 @@ def main():
             logging.error("Fastq file '{0}' not found!".format(fastq))
             raise IOError("Input file not found!")
 
+    # Extend the barcodes to accept mismatches
+    barcodes = extend_barcodes(args.barcodes, args.mismatches)
+
     # Create an extractor for each fastq file
-    extractors = [BarcodeExtractor(fastq, args.barcodes, args.output_suffix, args.gz_output) for fastq in args.fastqs]
+    extractors = [BarcodeExtractor(fastq, barcodes, args.output_suffix, args.gz_output) for fastq in args.fastqs]
 
     # Start all extractors
     for extractor in extractors:
